@@ -1,33 +1,18 @@
 use crate::colors::*;
-use rand::{thread_rng, Rng};
+
 use sdl2::{
-  event::Event,
-  image::{InitFlag, LoadSurface, LoadTexture},
-  keyboard::Keycode,
-  pixels::{Color, PixelFormatEnum},
+  pixels::PixelFormatEnum,
   rect::Rect,
-  render::{BlendMode, Canvas, Texture, TextureAccess, TextureCreator, TextureQuery},
+  render::{Canvas, Texture},
   surface::Surface,
   video::Window,
-  EventPump,
 };
-use serde::{Deserialize, Serialize};
-use specs::{prelude::*, Builder, Component, Join, ReadStorage, Storage, System, VecStorage};
-use specs_derive::Component;
-use std::{
-  path::Path,
-  rc::Rc,
-  sync::{Arc, Mutex},
-  thread,
-  time::{Duration, Instant},
-};
+use specs::{Join, ReadStorage, System};
+use std::rc::Rc;
 
 use crate::components::{Position, Sprite};
 
 use crate::tileset;
-
-const SPRITE_H: u32 = 32;
-const SPRITE_W: u32 = 32;
 
 pub struct RenderingSystem<'a> {
   pub canvas: Rc<Canvas<Window>>,
@@ -62,8 +47,8 @@ impl<'a> RenderingSystem<'a> {
       );
       println!("tile_id {}, row {}, column {}", tile_id, row, column);
       let src_rect = Rect::new(
-        (row * self.tileset.tile_width as i32),
-        (column * self.tileset.tile_height as i32),
+        row * self.tileset.tile_width as i32,
+        column * self.tileset.tile_height as i32,
         self.tileset.tile_width,
         self.tileset.tile_height,
       );

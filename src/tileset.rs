@@ -1,7 +1,6 @@
 use sdl2::{image::LoadSurface, surface::Surface};
-use serde::{Deserialize, Serialize};
-use serde_json::{Result, Value};
-use std::{collections::HashMap, fmt, fs::File, io::BufReader, path::Path};
+use serde_json::Value;
+use std::{collections::HashMap, fs::File, io::BufReader, path::Path};
 
 const TILE_DIR: &'static str = "assets/tiles";
 const SPRITE_SHEET_JSON_CONFIG: &'static str = "tile_config.json";
