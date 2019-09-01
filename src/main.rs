@@ -84,12 +84,16 @@ fn main() -> Result<(), GameError> {
   world
     .create_entity()
     .with(Position { x: 4, y: 7 })
-    .with(Sprite { id: "10mm".to_string() })
+    .with(Sprite {
+      id: "t_dirt".to_string(),
+    })
     .build();
   world
     .create_entity()
     .with(Position { x: 3, y: 9 })
-    .with(Sprite { id: "10mm".to_string() })
+    .with(Sprite {
+      id: "t_dirt".to_string(),
+    })
     .build();
 
   let mut dispatcher = DispatcherBuilder::new()

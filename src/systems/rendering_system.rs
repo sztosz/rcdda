@@ -49,8 +49,17 @@ impl<'a> RenderingSystem<'a> {
     for (position, sprite) in (&position, &sprite).join() {
       println!("pos {}, {}, sprite {}", position.x, position.y, sprite.id);
       let tile_id = self.tileset.tiles.get(&sprite.id).unwrap().fg.unwrap();
-      let row = tile_id / (self.tileset.height / self.tileset.tile_height) as i32;
-      let column = tile_id % (self.tileset.height / self.tileset.tile_height) as i32;
+      let row = tile_id % (self.tileset.width / self.tileset.tile_width) as i32;
+      let column = tile_id / (self.tileset.width / self.tileset.tile_width) as i32;
+      println!(
+        "tileset.width {}, tileset.height {}",
+        self.tileset.width, self.tileset.height
+      );
+      println!(
+        "tileset.width / tile_width {}, tileset.height / tile_height {}",
+        self.tileset.width / self.tileset.tile_width,
+        self.tileset.height / self.tileset.tile_height
+      );
       println!("tile_id {}, row {}, column {}", tile_id, row, column);
       let src_rect = Rect::new(
         (row * self.tileset.tile_width as i32),
