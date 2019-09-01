@@ -22,10 +22,12 @@ use std::{
 };
 
 mod colors;
-use colors::*;
 mod error;
+mod systems;
 use error::GameError;
-mod game;
+use systems::RenderingSystem;
+mod components;
+use components::{Position, Sprite};
 mod tileset;
 
 const INITIAL_WIDTH: u32 = 800;
@@ -38,46 +40,6 @@ const SPRITE_COLS: u32 = 16;
 const SPRITE_ROWS: u32 = 325;
 
 const SPRITE_SHEET: &'static str = "assets/tiles/tiles.png";
-
-#[derive(Component, Debug)]
-#[storage(VecStorage)]
-struct Position {
-  x: i32,
-  y: i32,
-}
-
-#[derive(Component, Debug)]
-#[storage(VecStorage)]
-struct Sprite {
-  id: String,
-}
-
-struct RenderingSystem {
-  canvas: Rc<Canvas<Window>>,
-}
-
-impl<'a> System<'a> for RenderingSystem {
-  type SystemData = (ReadStorage<'a, Position>, ReadStorage<'a, Sprite>);
-
-  fn run(&mut self, (position, sprite): Self::SystemData) {
-    let canvas = Rc::get_mut(&mut self.canvas).unwrap();
-    canvas.set_draw_color(GRAY);
-    canvas.clear();
-    for (position, sprite) in (&position, &sprite).join() {
-      println!("pos {}, {}, sprite {}", position.x, position.y, sprite.id);
-      canvas.set_draw_color(RED);
-      canvas
-        .fill_rect(Rect::new(
-          position.x * SPRITE_W as i32,
-          position.y * SPRITE_H as i32,
-          SPRITE_W,
-          SPRITE_H,
-        ))
-        .expect("Failed to fill Rect on canvas");
-    }
-    canvas.present();
-  }
-}
 
 fn raw_sprite<'a>(spritesheet: &Surface, sprite_rect: Rect) -> Result<Surface<'a>, String> {
   let mut tile: Surface = create_tile(sprite_rect)?;
@@ -113,10 +75,6 @@ fn init() -> Result<(Canvas<Window>, EventPump), String> {
 }
 
 fn main() -> Result<(), GameError> {
-  let tileset = tileset::load_tileset();
-  println!("{:?}", tileset.tile_height);
-  println!("{:?}", tileset.tile_width);
-  println!("{:?}", tileset.tiles);
   let (canvas, mut events) = init()?;
 
   let mut world = World::new();
@@ -126,26 +84,17 @@ fn main() -> Result<(), GameError> {
   world
     .create_entity()
     .with(Position { x: 4, y: 7 })
-    .with(Sprite {
-      id: "t_grass_season_winter".to_string(),
-    })
+    .with(Sprite { id: "10mm".to_string() })
     .build();
   world
     .create_entity()
     .with(Position { x: 3, y: 9 })
-    .with(Sprite {
-      id: "t_grass_season_winter".to_string(),
-    })
+    .with(Sprite { id: "10mm".to_string() })
     .build();
 
-  let rendering_system = RenderingSystem {
-    canvas: Rc::new(canvas),
-  };
-
-  let mut dispatcher = DispatcherBuilder::new().with_thread_local(rendering_system).build();
-
-  dispatcher.dispatch(&mut world);
-  world.maintain();
+  let mut dispatcher = DispatcherBuilder::new()
+    .with_thread_local(RenderingSystem::new(canvas))
+    .build();
 
   // let mut rng = thread_rng();
 

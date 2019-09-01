@@ -10,28 +10,30 @@ type TileHash = HashMap<String, Tile>;
 
 #[derive(Debug)]
 pub struct Tile {
-  fg: Option<i32>,
-  bg: Option<i32>,
+  pub fg: Option<i32>,
+  pub bg: Option<i32>,
 }
 
 pub struct Tileset<'a> {
-  // height: u32,
-  // width: u32,
-  pub tile_height: u32,
+  pub width: u32,
+  pub height: u32,
   pub tile_width: u32,
+  pub tile_height: u32,
   pub tiles: HashMap<String, Tile>,
-  // file_path: String,
-  pub sprites_surface: Surface<'a>,
+  pub spritesheet: Surface<'a>,
 }
 
 pub fn load_tileset<'a>() -> Tileset<'a> {
-  let (tile_height, tile_width, file_path, tiles) = parse_tile_config();
-  let sprites_surface: Surface = Surface::from_file(Path::new(TILE_DIR).join(&file_path)).unwrap();
+  let (tile_width, tile_height, file_path, tiles) = parse_tile_config();
+  let spritesheet: Surface = Surface::from_file(Path::new(TILE_DIR).join(&file_path)).unwrap();
+  let (width, height) = spritesheet.size();
   let tileset = Tileset {
-    tile_height,
+    width,
+    height,
     tile_width,
+    tile_height,
     tiles: tiles,
-    sprites_surface: sprites_surface,
+    spritesheet: spritesheet,
   };
   tileset
 }
@@ -47,9 +49,9 @@ fn parse_tile_config() -> (u32, u32, String, TileHash) {
 }
 
 fn parse_tile_info(json: &Value) -> (u32, u32) {
-  let height = json["tile_info"][0]["height"].as_i64().unwrap() as u32;
   let width = json["tile_info"][0]["width"].as_i64().unwrap() as u32;
-  (height, width)
+  let height = json["tile_info"][0]["height"].as_i64().unwrap() as u32;
+  (width, height)
 }
 
 fn parse_tiles_new(json: &Value) -> (String, TileHash) {
@@ -84,38 +86,3 @@ fn insert_tile(id: &Value, fg: &Value, bg: &Value, tiles: &mut TileHash) {
     },
   );
 }
-
-// sprite_surface.set_color_key(true, TRANSPARENT).unwrap();
-
-// let texture_creator = canvas.texture_creator();
-// let mut spritesheet: Texture = texture_creator.create_texture_from_surface(&sprite_surface)?;
-// spritesheet.set_blend_mode(BlendMode::Add);
-
-// let tex_query: TextureQuery = spritesheet.query();
-
-// println!("tex_query.width == {}", tex_query.width);
-// println!(" SPRITE_W * SPRITE_COLS == {}", SPRITE_W * SPRITE_COLS);
-// println!("tex_query.height == {}", tex_query.height);
-// println!("SPRITE_H * SPRITE_ROWS == {}", SPRITE_H * SPRITE_ROWS);
-// assert!(tex_query.width == SPRITE_W * SPRITE_COLS);
-// assert!(tex_query.height == SPRITE_H * SPRITE_ROWS);
-
-//  let raw_sprite: Surface = raw_sprite(&sprite_surface, src_rect).unwrap();
-//     let sprite_tex: Texture = texture_creator
-//       .create_texture_from_surface(&raw_sprite)
-//       .unwrap();
-
-// fn raw_sprite<'a>(spritesheet: &Surface, sprite_rect: Rect) -> Result<Surface<'a>, String> {
-//   let mut tile: Surface = create_tile(sprite_rect)?;
-//   spritesheet.blit(sprite_rect, &mut tile, None)?;
-//   Ok(tile)
-// }
-
-// fn create_tile<'a>(size_rect: Rect) -> Result<Surface<'a>, String> {
-//   let tile: Surface = Surface::new(
-//     size_rect.width(),
-//     size_rect.height(),
-//     PixelFormatEnum::RGB888,
-//   )?;
-//   Ok(tile)
-// }
